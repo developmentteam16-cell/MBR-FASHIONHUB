@@ -29,6 +29,8 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 validateProductionEnv();
 
 const app = express();
+const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(helmet({
@@ -43,6 +45,10 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(hpp());
 app.use(sanitizeRequest);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(frontendDistPath));
+}
 
 app.use(createRateLimiter({
   windowMs: 15 * 60 * 1000,
@@ -63,7 +69,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    next();
+    return;
+  }
+
   res.json({ message: 'Men\'s fashion API is online.' });
 });
 
@@ -78,6 +89,17 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api', paymentRoutes);
+
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      next();
+      return;
+    }
+
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
