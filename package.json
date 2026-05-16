@@ -7,7 +7,7 @@
     "start": "npm start --prefix backend",
     "postinstall": "npm install --prefix backend && npm install --prefix frontend --include=dev",
     "install-all": "npm install --prefix backend && npm install --prefix frontend --include=dev",
-    "build": "npm run build --prefix frontend"
+    "build": "npm install --prefix frontend --include=dev && npm install --prefix backend && npm run build --prefix frontend"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
