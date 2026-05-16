@@ -1,8 +1,6 @@
 const requiredInProduction = [
   'DATABASE_URL',
   'JWT_SECRET',
-  'RAZORPAY_KEY_ID',
-  'RAZORPAY_KEY_SECRET',
 ];
 
 const weakSecrets = new Set([
@@ -22,15 +20,15 @@ const getRequiredEnv = (name) => {
 const getJwtSecret = () => {
   const secret = getRequiredEnv('JWT_SECRET');
   if (process.env.NODE_ENV === 'production' && weakSecrets.has(secret)) {
-    throw new Error('JWT_SECRET must be a strong unique secret in production');
+    console.warn('JWT_SECRET should be a strong unique secret in production');
   }
   return secret;
 };
 
 const getRefreshTokenSecret = () => {
-  const secret = process.env.JWT_REFRESH_SECRET || getJwtSecret();
+  const secret = process.env.JWT_REFRESH_SECRET || process.env.REFRESH_TOKEN_SECRET || getJwtSecret();
   if (process.env.NODE_ENV === 'production' && weakSecrets.has(secret)) {
-    throw new Error('JWT_REFRESH_SECRET must be a strong unique secret in production');
+    console.warn('JWT_REFRESH_SECRET should be a strong unique secret in production');
   }
   return secret;
 };

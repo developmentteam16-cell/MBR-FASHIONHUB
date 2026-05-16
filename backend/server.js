@@ -30,6 +30,8 @@ validateProductionEnv();
 
 const app = express();
 const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+const frontendIndexPath = path.join(frontendDistPath, 'index.html');
+const hasFrontendBuild = require('fs').existsSync(frontendIndexPath);
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -46,7 +48,7 @@ app.use(hpp());
 app.use(sanitizeRequest);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && hasFrontendBuild) {
   app.use(express.static(frontendDistPath));
 }
 
@@ -70,7 +72,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res, next) => {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && hasFrontendBuild) {
     next();
     return;
   }
@@ -90,14 +92,14 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api', paymentRoutes);
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && hasFrontendBuild) {
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
       next();
       return;
     }
 
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
+    res.sendFile(frontendIndexPath);
   });
 }
 
