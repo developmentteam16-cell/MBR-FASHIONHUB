@@ -80,6 +80,16 @@ app.get('/', (req, res, next) => {
   res.json({ message: 'Men\'s fashion API is online.' });
 });
 
+app.get('/api/health', async (req, res, next) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', database: 'connected' });
+  } catch (error) {
+    res.status(503);
+    next(error);
+  }
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);

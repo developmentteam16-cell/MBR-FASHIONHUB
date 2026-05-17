@@ -8,7 +8,10 @@ const parseOrigins = (value = '') => value
   .filter(Boolean);
 
 const corsOptions = () => {
-  const allowedOrigins = parseOrigins(process.env.CORS_ORIGINS);
+  const allowedOrigins = [
+    ...parseOrigins(process.env.CORS_ORIGINS),
+    ...parseOrigins(process.env.FRONTEND_URL),
+  ];
   const isProduction = process.env.NODE_ENV === 'production';
 
   return {
