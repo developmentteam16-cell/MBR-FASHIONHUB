@@ -9,6 +9,10 @@ const parseOrigins = (value = '') => value
 
 const corsOptions = () => {
   const allowedOrigins = [
+    'https://mbrfashionhub.com',
+    'https://www.mbrfashionhub.com',
+    'https://api.mbrfashionhub.com',
+    'http://localhost:5173',
     ...parseOrigins(process.env.CORS_ORIGINS),
     ...parseOrigins(process.env.FRONTEND_URL),
   ];
